@@ -2,4 +2,5 @@
 ---
 host: homename.tld
 user: user
-remote-dir: ~/temp
+known-hosts: known_hosts  
+remote-dir: temp

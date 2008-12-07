@@ -1,0 +1,5 @@
+You'll need to create a config.yaml file which contains configuration information about the remote host name, the user name, the remote directory, and the location of a known_hosts file to use.
+
+For a known_hosts file, you can just copy the line from your .ssh/known_hosts file corresponding to the target server and save in its own file.
+
+Sample config.yaml and known_hosts files are included.
