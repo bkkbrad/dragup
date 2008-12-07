@@ -1,7 +1,7 @@
 #!/usr/bin/env jruby
 require 'java'
 require 'yaml'
-
+require 'find'
 CONFIG = YAML::load(File.read(File.join(File.dirname(__FILE__), 'config.yaml')))
 $host = CONFIG['host']
 $user = CONFIG['user']
@@ -25,6 +25,13 @@ frame.add(panel)
 
 model = javax.swing.DefaultListModel.new
 list = JList.new(model)
+ARGV.each do |arg|
+  Find.find(arg) do |path|
+    if FileTest.file?(path)
+      model.add(model.size(), java.io.File.new(File.expand_path(path)))
+    end
+  end
+end
 fc = JFileChooser.new;
 fc.multi_selection_enabled = true 
 
