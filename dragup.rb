@@ -8,9 +8,9 @@ $user = CONFIG['user']
 $remote = CONFIG['remote-dir']
 $password = nil
 
-["JSplitPane", "JTextField", "JPasswordField","JOptionPane", "JFrame", "JPanel", "JLabel", "JTextArea", "JButton", "JList", "BoxLayout", "JScrollPane", "JFileChooser", "JDialog"].each { |c| include_class "javax.swing.#{c}"}
+["TransferHandler","JSplitPane", "JTextField", "JPasswordField","JOptionPane", "JFrame", "JPanel", "JLabel", "JTextArea", "JButton", "JList", "BoxLayout", "JScrollPane", "JFileChooser", "JDialog"].each { |c| include_class "javax.swing.#{c}"}
 ["BorderLayout", "Frame"].each { |c| include_class "java.awt.#{c}" }
-
+include_class "java.awt.datatransfer.DataFlavor"
 
 #TODO do actual file transfer
 def transfer(f)
@@ -24,14 +24,56 @@ panel.layout = BorderLayout.new
 frame.add(panel)
 
 model = javax.swing.DefaultListModel.new
-list = JList.new(model)
-ARGV.each do |arg|
-  Find.find(arg) do |path|
+
+def add_path(model, index, base)
+  Find.find(File.expand_path(base)) do |path|
     if FileTest.file?(path)
-      model.add(model.size(), java.io.File.new(File.expand_path(path)))
+      file_to_add = java.io.File.new(path)
+      if !model.contains(file_to_add)
+        model.add(index, file_to_add )
+        index += 1
+      end
     end
   end
+  index
 end
+
+list = JList.new(model)
+index = 0
+ARGV.each do |arg|
+  index = add_path(model, index, arg)
+end
+
+class FileListTransferHandler < TransferHandler
+  def canImport(comp, transfer_flavors)
+    transfer_flavors.each { |flav| return true if flav.equals(DataFlavor::javaFileListFlavor) }
+    false
+  end
+
+  def importData(comp, transferable)
+    return false unless canImport(comp, transferable.transfer_data_flavors)
+    model = comp.model
+    index = comp.get_selected_index
+    max = model.size
+    if index < 0
+      index = max
+    else
+      index += 1
+      index = max if index > max
+    end
+
+    transferable.transfer_data_flavors.each do |flavor|
+      if flavor.equals(DataFlavor::javaFileListFlavor)
+        transferable.get_transfer_data(flavor).each do |file|
+          index = add_path(model, index, file.path)
+        end
+      end
+    end
+    return true
+  end
+end
+list.setTransferHandler(FileListTransferHandler.new)
+
 fc = JFileChooser.new;
 fc.multi_selection_enabled = true 
 
@@ -47,10 +89,9 @@ add_button.add_action_listener do |e|
   val = fc.show_dialog(frame, "Add File")
   if val == JFileChooser::APPROVE_OPTION
     files = fc.selected_files
+    index = model.size
     fc.selected_files.each do |f|
-      if !model.contains(f)
-        model.add(model.size(), f)
-      end
+      index = add_path(model, index, f.path)
     end
   else
     p "ignore"
