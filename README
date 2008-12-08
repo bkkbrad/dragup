@@ -3,3 +3,9 @@ You'll need to create a config.yaml file which contains configuration informatio
 For a known_hosts file, you can just copy the line from your .ssh/known_hosts file corresponding to the target server and save in its own file.
 
 Sample config.yaml and known_hosts files are included.
+
+Dependencies:
+jruby-complete-1.1.5.jar
+jruby-complete-1.1.6RC1.jar
+jsch-0.1.40.jar
+swing-worker-1.2.jar

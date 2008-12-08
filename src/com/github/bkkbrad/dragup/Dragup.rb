@@ -3,12 +3,28 @@ require 'java'
 require 'yaml'
 require 'logger'
 require 'find'
-Dir.glob(File.join(File.dirname(__FILE__), "lib") + "/*.jar").each { |jar| require jar}
+#Dir.glob(File.join(File.dirname(__FILE__), "lib") + "/*.jar").each { |jar| require jar}
 import com.jcraft.jsch.JSch
 import org.jdesktop.swingworker.SwingWorker
 import java.io.FileInputStream
 
-["ProgressMonitor", "TransferHandler","JSplitPane", "JTextField", "JPasswordField","JOptionPane", "JFrame", "JPanel", "JLabel", "JTextArea", "JButton", "JList", "BoxLayout", "JScrollPane", "JFileChooser", "JDialog"].each { |c| include_class "javax.swing.#{c}"}
+#["ProgressMonitor", "TransferHandler","JSplitPane", "JTextField", "JPasswordField","JOptionPane", "JFrame", "JPanel", "JLabel", "JTextArea", "JButton", "JList", "BoxLayout", "JScrollPane", "JFileChooser", "JDialog"].each { |c| include_class "javax.swing.#{c}"}
+import javax.swing.ProgressMonitor
+import javax.swing.TransferHandler
+import javax.swing.JSplitPane
+import javax.swing.JTextField
+import javax.swing.JPasswordField
+import javax.swing.JOptionPane
+import javax.swing.JFrame
+import javax.swing.JPanel
+import javax.swing.JLabel
+import javax.swing.JTextArea
+import javax.swing.JButton
+import javax.swing.JList
+import javax.swing.BoxLayout
+import javax.swing.JScrollPane
+import javax.swing.JFileChooser
+import javax.swing.JDialog
 ["BorderLayout", "Frame"].each { |c| include_class "java.awt.#{c}" }
 include_class "java.awt.datatransfer.DataFlavor"
 
@@ -36,7 +52,9 @@ class Dragup < JFrame
     @known_hosts = known_hosts
      
     logger = JTextArea.new
-    logger.editable = false
+    p(logger.java_object.methods.sort - Object.methods)
+    #logger.java_object.setEditable(false)
+    #logger.setEditable false
     @log = Logger.new(JTextAreaLogger.new(logger))
     @log.info "Upload log initialized"
 
@@ -213,11 +231,15 @@ class UploadTask < SwingWorker
   end
 end
 
-CONFIG = YAML::load(File.read(Dragup::absolute_path('config.yaml')))
+def file_contents(path)
+  com.github.bkkbrad.dragup.Dragup.java_class.resource_as_string(path)
+end
+
+CONFIG = YAML::load(file_contents("/config.yaml"))
 host = CONFIG['host']
 user = CONFIG['user']
 remote = CONFIG['remote-dir']
-known_hosts = Dragup::absolute_path(CONFIG['known-hosts'])
+known_hosts = java.io.ByteArrayInputStream.new(file_contents("/known_hosts").to_java_bytes)
 dragup = Dragup.new(host, user, remote, known_hosts)
 index = 0
 ARGV.each do |arg|
