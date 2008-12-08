@@ -52,9 +52,7 @@ class Dragup < JFrame
     @known_hosts = known_hosts
      
     logger = JTextArea.new
-    p(logger.java_object.methods.sort - Object.methods)
-    #logger.java_object.setEditable(false)
-    #logger.setEditable false
+    logger.editable = false
     @log = Logger.new(JTextAreaLogger.new(logger))
     @log.info "Upload log initialized"
 
