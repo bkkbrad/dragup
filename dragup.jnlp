@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+"
+      codebase="file:.">
+    <information>
+        <title>Dragup File Uploader</title>
+        <vendor>Bkkbrad</vendor>
+        <description>Simple SFTP client</description>
+        <description kind="short">Simple SFTP client</description>
+        <homepage href="http://github.com/bkkbrad/dragup"/>
+    </information>
+    <resources>
+        <j2se version="1.5+"/>
+        <jar href="dist/dragup.jar" download="eager"/>
+        <jar href="lib/jruby-complete-1.1.5.jar" download="eager"/>
+        <jar href="lib/jsch-0.1.40.jar" download="eager"/>
+        <jar href="lib/swing-worker-1.2.jar" download="eager"/>
+    </resources>
+    <application-desc main-class="com.github.bkkbrad.dragup.DragupRunner">
+    </application-desc>
+</jnlp>
+
